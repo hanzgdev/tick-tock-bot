@@ -74,7 +74,36 @@ client.on('messageCreate', async (message) => {
     message.reply(`Reminder #${id} snoozed by ${timeArg}!`);
   }
 });
+  // !botinfo
+  else if (message.content === '!botinfo') {
+    const activeReminders = reminders.filter(r => !r.done).length;
+    message.reply(`⏰ **TickTock Bot Info**\n**Servers:** ${client.guilds.cache.size}\n**Active Reminders:** ${activeReminders}\n**Uptime:** ${Math.floor(client.uptime / 1000 / 60)} minutes`);
+  }
 
+  // !remindall
+  else if (message.content.startsWith('!remindall')) {
+    if (!message.member.permissions.has('Administrator')) {
+      return message.reply('You need to be an admin to use this command!');
+    }
+    const args = message.content.split(' ');
+    const timeArg = args[1];
+    const reminderMsg = args.slice(2).join(' ');
+
+    if (!timeArg || !reminderMsg) {
+      return message.reply('Usage: `!remindall <time> <message>` — example: `!remindall 10m server meeting`');
+    }
+
+    const ms = parseTime(timeArg);
+    if (!ms) return message.reply('Invalid time!');
+
+    const members = message.guild.members.cache.filter(m => !m.user.bot);
+    members.forEach(member => {
+      const id = reminders.length + 1;
+      reminders.push({ id, userId: member.user.id, channelId: message.channel.id, msg: reminderMsg, triggerAt: Date.now() + ms, done: false });
+    });
+
+    message.reply(`Got it! I'll remind everyone about **${reminderMsg}** in **${timeArg}** ⏰`);
+                                           }
 // Check reminders every 10 seconds
 setInterval(() => {
   const now = Date.now();
