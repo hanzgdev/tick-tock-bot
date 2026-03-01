@@ -18,8 +18,8 @@ client.on('ready', () => {
 client.on('messageCreate', async (message) => {
   if (message.author.bot) return;
 
-  // !remind 10m take a break
-  if (message.content.startsWith('!remind')) {
+  // !remind
+  if (message.content.startsWith('!remind') && !message.content.startsWith('!reminders') && !message.content.startsWith('!remindall')) {
     const args = message.content.split(' ');
     const timeArg = args[1];
     const reminderMsg = args.slice(2).join(' ');
@@ -52,7 +52,7 @@ client.on('messageCreate', async (message) => {
     message.reply(`Your reminders:\n${list}`);
   }
 
-  // !cancel 3
+  // !cancel
   else if (message.content.startsWith('!cancel')) {
     const id = parseInt(message.content.split(' ')[1]);
     const index = reminders.findIndex(r => r.id === id && r.userId === message.author.id);
@@ -61,7 +61,7 @@ client.on('messageCreate', async (message) => {
     message.reply(`Reminder #${id} cancelled!`);
   }
 
-  // !snooze 3 10m
+  // !snooze
   else if (message.content.startsWith('!snooze')) {
     const args = message.content.split(' ');
     const id = parseInt(args[1]);
@@ -73,7 +73,7 @@ client.on('messageCreate', async (message) => {
     reminder.triggerAt += ms;
     message.reply(`Reminder #${id} snoozed by ${timeArg}!`);
   }
-});
+
   // !botinfo
   else if (message.content === '!botinfo') {
     const activeReminders = reminders.filter(r => !r.done).length;
@@ -103,7 +103,9 @@ client.on('messageCreate', async (message) => {
     });
 
     message.reply(`Got it! I'll remind everyone about **${reminderMsg}** in **${timeArg}** ⏰`);
-                                           }
+  }
+});
+
 // Check reminders every 10 seconds
 setInterval(() => {
   const now = Date.now();
